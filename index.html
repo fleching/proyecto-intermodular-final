@@ -1,0 +1,617 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>SMR LAB — Plataforma de Aprendizaje</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=JetBrains+Mono:wght@300;400;500;700&family=Syne:wght@400;600;700;800&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="style.css" />
+</head>
+<body>
+
+<!-- ═══════════════════════════════════════
+     PANTALLA DE LOGIN
+═══════════════════════════════════════ -->
+<div id="loginScreen">
+
+  <div class="login__bg">
+    <canvas id="loginParticles"></canvas>
+    <div class="login__grid"></div>
+  </div>
+
+  <div class="login__card">
+
+    <div class="login__badge">SMR · CICLO FORMATIVO</div>
+
+    <h1 class="login__title">
+      <span class="login__title--accent">SMR</span> LAB
+    </h1>
+
+    <p class="login__subtitle">
+      Plataforma interactiva de<br/>
+      <span class="mono">Sistemas Microinformáticos y Redes</span>
+    </p>
+
+    <div class="login__tabs">
+      <button type="button" class="login__tab active" id="tabLogin" onclick="switchAuthTab('login')">
+        Iniciar sesión
+      </button>
+      <button type="button" class="login__tab" id="tabRegister" onclick="switchAuthTab('register')">
+        Registrarse
+      </button>
+    </div>
+
+    <div class="login__form">
+      <div class="field hidden" id="usernameField">
+        <label class="field__label mono">Nombre de usuario</label>
+        <input class="field__input" type="text" id="username" placeholder="ej. kike_smr" autocomplete="username" maxlength="24" />
+      </div>
+
+      <div class="field">
+        <label class="field__label mono" id="identifierLabel">Identificador de acceso</label>
+        <input class="field__input" type="email" id="identifier" placeholder="tu.cuenta@dominio" autocomplete="username" />
+      </div>
+
+      <div class="field">
+        <label class="field__label mono">Contraseña</label>
+        <input class="field__input" type="password" id="password" placeholder="••••••••" autocomplete="current-password" />
+      </div>
+
+      <button type="button" class="btn btn--primary btn--full" id="authBtn" onclick="handleAuth()">
+        <span id="authBtnText">Iniciar sesión</span>
+        <span class="btn__arrow">→</span>
+      </button>
+    </div>
+
+    <p id="authError" class="login__error"></p>
+
+    <div class="login__footer mono">
+      v2.1 · Kike Meré Blanco · SMR
+    </div>
+
+  </div>
+
+</div>
+
+<!-- ═══════════════════════════════════════
+     APP PRINCIPAL
+═══════════════════════════════════════ -->
+<div id="app">
+
+  <!-- SIDEBAR -->
+  <aside class="sidebar" id="sidebar">
+
+    <div class="sidebar__top">
+
+      <div class="sidebar__logo">
+        <div class="sidebar__logo-icon">
+          <svg width="20" height="20" viewBox="0 0 20 20" fill="none">
+            <path d="M10 2L18 6V14L10 18L2 14V6L10 2Z" stroke="var(--accent)" stroke-width="1.5" fill="none"/>
+            <circle cx="10" cy="10" r="3" fill="var(--accent)"/>
+          </svg>
+        </div>
+        <div>
+          <div class="sidebar__logo-name">SMR LAB</div>
+          <div class="sidebar__logo-version mono">v2.1</div>
+        </div>
+      </div>
+
+      <nav class="sidebar__nav">
+        <button type="button" class="nav-item active" data-tab="redes" onclick="switchTab('redes', this)">
+          <span class="nav-item__icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <circle cx="8" cy="3" r="2" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="3" cy="13" r="2" stroke="currentColor" stroke-width="1.5"/>
+              <circle cx="13" cy="13" r="2" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="8" y1="5" x2="3" y2="11" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="8" y1="5" x2="13" y2="11" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="3" y1="13" x2="13" y2="13" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </span>
+          <span class="nav-item__label">Simulador de Redes</span>
+          <span class="nav-item__dot"></span>
+        </button>
+
+        <button type="button" class="nav-item" data-tab="sistemas" onclick="switchTab('sistemas', this)">
+          <span class="nav-item__icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="2" width="12" height="9" rx="1.5" stroke="currentColor" stroke-width="1.5"/>
+              <line x1="5" y1="14" x2="11" y2="14" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+              <line x1="8" y1="11" x2="8" y2="14" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </span>
+          <span class="nav-item__label">Sistemas OS</span>
+        </button>
+
+        <button type="button" class="nav-item" data-tab="misiones" onclick="switchTab('misiones', this)">
+          <span class="nav-item__icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <path d="M8 2L9.6 6.4H14L10.4 8.8L11.6 13.2L8 10.8L4.4 13.2L5.6 8.8L2 6.4H6.4L8 2Z" stroke="currentColor" stroke-width="1.5" stroke-linejoin="round"/>
+            </svg>
+          </span>
+          <span class="nav-item__label">Misiones</span>
+          <span class="nav-item__badge" id="misionBadge">0</span>
+        </button>
+
+        <button type="button" class="nav-item" data-tab="leaderboard" onclick="switchTab('leaderboard', this)">
+          <span class="nav-item__icon">
+            <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+              <rect x="2" y="9" width="3" height="5" rx="0.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="6.5" y="5" width="3" height="9" rx="0.5" stroke="currentColor" stroke-width="1.5"/>
+              <rect x="11" y="7" width="3" height="7" rx="0.5" stroke="currentColor" stroke-width="1.5"/>
+            </svg>
+          </span>
+          <span class="nav-item__label">Leaderboard</span>
+        </button>
+      </nav>
+
+    </div>
+
+    <div class="sidebar__bottom">
+
+      <div class="profile-card profile-card--clickable" onclick="openProfilePanel()" title="Ver mi perfil">
+        <div class="profile-card__avatar" id="profileAvatar">?</div>
+        <div class="profile-card__info">
+          <div class="profile-card__name" id="profileName">—</div>
+          <div class="profile-card__level mono" id="profileLevel">Nivel 1</div>
+        </div>
+        <div class="profile-card__chevron">
+          <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+            <path d="M5 3l4 4-4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+          </svg>
+        </div>
+      </div>
+
+      <!-- XP BAR -->
+      <div class="xp-bar">
+        <div class="xp-bar__labels">
+          <span class="mono" style="font-size:10px; color:var(--text-dim)">XP</span>
+          <span class="mono" style="font-size:10px; color:var(--accent)" id="xpLabel">0 / 100</span>
+        </div>
+        <div class="xp-bar__track">
+          <div class="xp-bar__fill" id="xpFill" style="width:0%"></div>
+        </div>
+      </div>
+
+      <button type="button" class="btn btn--danger btn--full" onclick="logout()">
+        <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+          <path d="M5 2H2v10h3M10 10l3-3-3-3M13 7H6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+        </svg>
+        Cerrar sesión
+      </button>
+
+    </div>
+
+  </aside>
+
+  <!-- MAIN CONTENT -->
+  <main class="main">
+
+    <!-- ─── TAB: REDES ─── -->
+    <section class="tab-content active" id="tab-redes">
+
+      <header class="page-header">
+        <div>
+          <h1 class="page-header__title">Simulador de Redes</h1>
+          <p class="page-header__sub mono">Diseña, conecta y analiza topologías de red en tiempo real</p>
+        </div>
+        <div class="header-stats">
+          <div class="stat-chip">
+            <span class="mono" id="nodeCount">0</span> nodos
+          </div>
+          <div class="stat-chip">
+            <span class="mono" id="linkCount">0</span> enlaces
+          </div>
+        </div>
+      </header>
+
+      <div class="redes-layout">
+
+        <!-- CANVAS PANEL -->
+        <div class="canvas-panel">
+          <div class="canvas-toolbar">
+            <div class="toolbar-group">
+              <button type="button" class="tool-btn" onclick="addDevice('router')" title="Añadir Router">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1" y="5" width="14" height="6" rx="2" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="4" cy="8" r="1" fill="currentColor"/>
+                  <circle cx="7" cy="8" r="1" fill="currentColor"/>
+                  <line x1="11" y1="6" x2="11" y2="10" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="4" y1="5" x2="4" y2="2" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="12" y1="5" x2="12" y2="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                Router
+              </button>
+              <button type="button" class="tool-btn" onclick="addDevice('switch')" title="Añadir Switch">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="1" y="6" width="14" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="4" y1="6" x2="4" y2="4" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="8" y1="6" x2="8" y2="4" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="12" y1="6" x2="12" y2="10" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="4" cy="8" r="0.8" fill="var(--accent)"/>
+                  <circle cx="8" cy="8" r="0.8" fill="var(--accent)"/>
+                </svg>
+                Switch
+              </button>
+              <button type="button" class="tool-btn" onclick="addDevice('pc')" title="Añadir PC">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="2" y="2" width="10" height="8" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="6" y1="14" x2="10" y2="14" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="8" y1="10" x2="8" y2="14" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                PC
+              </button>
+              <button type="button" class="tool-btn" onclick="addDevice('server')" title="Añadir Servidor">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <rect x="3" y="2" width="10" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                  <rect x="3" y="7" width="10" height="4" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="11" cy="4" r="0.8" fill="var(--green)"/>
+                  <circle cx="11" cy="9" r="0.8" fill="var(--green)"/>
+                </svg>
+                Servidor
+              </button>
+            </div>
+
+            <div class="toolbar-group">
+              <button type="button" class="tool-btn tool-btn--mode" id="btnModeConnect" onclick="setMode('connect')" title="Modo conectar">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <line x1="3" y1="13" x2="13" y2="3" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="3" cy="13" r="2" stroke="currentColor" stroke-width="1.5"/>
+                  <circle cx="13" cy="3" r="2" stroke="currentColor" stroke-width="1.5"/>
+                </svg>
+                Conectar
+              </button>
+              <button type="button" class="tool-btn tool-btn--mode tool-btn--active" id="btnModeMove" onclick="setMode('move')" title="Modo mover">
+                <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+                  <path d="M8 2v12M2 8h12M5 5l-3 3 3 3M11 5l3 3-3 3" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Mover
+              </button>
+            </div>
+
+            <div class="toolbar-group toolbar-group--right">
+              <button type="button" class="tool-btn tool-btn--ghost" onclick="analyzeNetwork()" title="Analizar red">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <circle cx="6" cy="6" r="4" stroke="currentColor" stroke-width="1.5"/>
+                  <line x1="9" y1="9" x2="13" y2="13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                </svg>
+                Analizar
+              </button>
+              <button type="button" class="tool-btn tool-btn--ghost" onclick="clearNetwork()" title="Limpiar">
+                <svg width="14" height="14" viewBox="0 0 14 14" fill="none">
+                  <path d="M2 4h10M5 4V3h4v1M10 4l-.5 7H4.5L4 4" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+                </svg>
+                Limpiar
+              </button>
+            </div>
+          </div>
+
+          <div class="canvas-wrap">
+            <canvas id="networkCanvas"></canvas>
+            <div class="canvas-hint mono" id="canvasHint">
+              Añade dispositivos con los botones de arriba · Arrastra para mover
+            </div>
+          </div>
+
+          <!-- TOOLTIP -->
+          <div class="node-tooltip" id="nodeTooltip">
+            <div class="node-tooltip__title mono" id="ttTitle">—</div>
+            <div class="node-tooltip__row">
+              <span class="mono" style="color:var(--text-dim)">IP</span>
+              <span class="mono" id="ttIp">—</span>
+            </div>
+            <div class="node-tooltip__row">
+              <span class="mono" style="color:var(--text-dim)">Tipo</span>
+              <span class="mono" id="ttType">—</span>
+            </div>
+            <div class="node-tooltip__row">
+              <span class="mono" style="color:var(--text-dim)">MAC</span>
+              <span class="mono" id="ttMac">—</span>
+            </div>
+            <div class="node-tooltip__row">
+              <span class="mono" style="color:var(--text-dim)">ID</span>
+              <span class="mono" id="ttShortId">—</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- INFO SIDE -->
+        <div class="redes-side">
+
+          <!-- SELECTED NODE INFO -->
+          <div class="side-card" id="selectedCard">
+            <h3 class="side-card__title">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="color:var(--accent)">
+                <circle cx="7" cy="7" r="5.5" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="7" y1="5" x2="7" y2="9" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+                <circle cx="7" cy="3.5" r="0.5" fill="currentColor"/>
+              </svg>
+              Dispositivo seleccionado
+            </h3>
+            <div id="selectedInfo" class="selected-info">
+              <p class="mono" style="color:var(--text-dim); font-size:12px; text-align:center; padding:20px 0">
+                Haz click en un nodo para ver detalles
+              </p>
+            </div>
+          </div>
+
+          <!-- ANALYSIS PANEL -->
+          <div class="side-card" id="analysisCard" style="display:none">
+            <h3 class="side-card__title">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="color:var(--accent)">
+                <path d="M2 10 L5 7 L7 9 L10 4 L12 6" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/>
+              </svg>
+              Análisis de red
+            </h3>
+            <div id="analysisContent"></div>
+          </div>
+
+          <!-- GLOSARIO -->
+          <div class="side-card">
+            <h3 class="side-card__title">
+              <svg width="14" height="14" viewBox="0 0 14 14" fill="none" style="color:var(--accent)">
+                <rect x="2" y="1" width="10" height="12" rx="1" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="4.5" y1="5" x2="9.5" y2="5" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="4.5" y1="7.5" x2="9.5" y2="7.5" stroke="currentColor" stroke-width="1.5"/>
+                <line x1="4.5" y1="10" x2="7.5" y2="10" stroke="currentColor" stroke-width="1.5"/>
+              </svg>
+              Glosario
+            </h3>
+            <div class="glossary">
+              <div class="glossary-item" onclick="toggleGlossary(this)">
+                <div class="glossary-item__header">
+                  <span class="device-badge device-badge--router">Router</span>
+                  <span class="glossary-item__arrow">▾</span>
+                </div>
+                <p class="glossary-item__body">Dispositivo de capa 3 que conecta redes distintas y dirige el tráfico mediante tablas de enrutamiento. Opera con IPs.</p>
+              </div>
+              <div class="glossary-item" onclick="toggleGlossary(this)">
+                <div class="glossary-item__header">
+                  <span class="device-badge device-badge--switch">Switch</span>
+                  <span class="glossary-item__arrow">▾</span>
+                </div>
+                <p class="glossary-item__body">Dispositivo de capa 2 que conecta dispositivos en una LAN. Aprende direcciones MAC y conmuta tramas de forma eficiente.</p>
+              </div>
+              <div class="glossary-item" onclick="toggleGlossary(this)">
+                <div class="glossary-item__header">
+                  <span class="device-badge device-badge--pc">PC</span>
+                  <span class="glossary-item__arrow">▾</span>
+                </div>
+                <p class="glossary-item__body">Equipo terminal en la red. Se comunica usando protocolos TCP/IP y puede actuar como cliente o servidor.</p>
+              </div>
+              <div class="glossary-item" onclick="toggleGlossary(this)">
+                <div class="glossary-item__header">
+                  <span class="device-badge device-badge--server">Servidor</span>
+                  <span class="glossary-item__arrow">▾</span>
+                </div>
+                <p class="glossary-item__body">Equipo que ofrece servicios a la red: DNS, DHCP, HTTP, FTP, etc. Siempre encendido y con IP estática.</p>
+              </div>
+            </div>
+          </div>
+
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ─── TAB: SISTEMAS ─── -->
+    <section class="tab-content" id="tab-sistemas">
+
+      <header class="page-header">
+        <div>
+          <h1 class="page-header__title">Sistemas Operativos</h1>
+          <p class="page-header__sub mono">Conceptos, comandos y comparativas de SO</p>
+        </div>
+      </header>
+
+      <div class="sistemas-grid">
+
+        <div class="os-card os-card--linux">
+          <div class="os-card__logo">🐧</div>
+          <h3 class="os-card__name">Linux</h3>
+          <p class="os-card__desc">Kernel open-source base de servidores, Android y dispositivos embebidos.</p>
+          <div class="os-card__tags">
+            <span class="tag">Open Source</span>
+            <span class="tag">Servidores</span>
+            <span class="tag">CLI</span>
+          </div>
+        </div>
+
+        <div class="os-card os-card--windows">
+          <div class="os-card__logo">🪟</div>
+          <h3 class="os-card__name">Windows</h3>
+          <p class="os-card__desc">Sistema dominante en escritorio empresarial. Active Directory, Hyper-V, PowerShell.</p>
+          <div class="os-card__tags">
+            <span class="tag">Empresas</span>
+            <span class="tag">GUI</span>
+            <span class="tag">Active Directory</span>
+          </div>
+        </div>
+
+        <div class="os-card os-card--unix">
+          <div class="os-card__logo">🍎</div>
+          <h3 class="os-card__name">macOS / Unix</h3>
+          <p class="os-card__desc">Base BSD. Entorno POSIX. Muy usado en desarrollo. Terminal potente.</p>
+          <div class="os-card__tags">
+            <span class="tag">POSIX</span>
+            <span class="tag">Dev</span>
+            <span class="tag">BSD</span>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- TERMINAL SIMULADA -->
+      <div class="terminal-panel">
+        <div class="terminal-header">
+          <div class="terminal-dots">
+            <span style="background:#ff5f57"></span>
+            <span style="background:#febc2e"></span>
+            <span style="background:#28c840"></span>
+          </div>
+          <span class="mono" style="font-size:12px; color:var(--text-dim)">bash — smr-lab</span>
+        </div>
+        <div class="terminal-body" id="terminalBody">
+          <div class="terminal-line">
+            <span class="mono terminal-prompt">smr@lab:~$</span>
+            <span class="mono terminal-text"> Bienvenido al terminal simulado. Escribe <span style="color:var(--accent)">help</span> para ver comandos.</span>
+          </div>
+        </div>
+        <div class="terminal-input-row">
+          <span class="mono terminal-prompt">smr@lab:~$</span>
+          <input class="terminal-input mono" id="terminalInput" placeholder="escribe un comando..." autocomplete="off" onkeydown="handleTerminal(event)" />
+        </div>
+      </div>
+
+    </section>
+
+    <!-- ─── TAB: MISIONES ─── -->
+    <section class="tab-content" id="tab-misiones">
+
+      <header class="page-header">
+        <div>
+          <h1 class="page-header__title">Misiones</h1>
+          <p class="page-header__sub mono">Verificación automática: solo estado verificado suma XP</p>
+        </div>
+        <div class="header-stats">
+          <div class="stat-chip stat-chip--accent">
+            <span class="mono" id="totalXpDisplay">0</span> XP total
+          </div>
+        </div>
+      </header>
+
+      <div class="missions-grid" id="missionsGrid">
+        <!-- populated by JS -->
+      </div>
+
+    </section>
+
+    <!-- ─── TAB: LEADERBOARD ─── -->
+    <section class="tab-content" id="tab-leaderboard">
+
+      <header class="page-header">
+        <div>
+          <h1 class="page-header__title">Leaderboard</h1>
+          <p class="page-header__sub mono">Ranking por XP (usuarios)</p>
+        </div>
+      </header>
+
+      <div class="leaderboard-layout">
+
+        <!-- PODIO -->
+        <div class="podium" id="podium">
+          <!-- populated by JS -->
+        </div>
+
+        <!-- TABLA FULL -->
+        <div class="leaderboard-table-wrap">
+          <div class="leaderboard-table-header mono">
+            <span>#</span>
+            <span>Usuario</span>
+            <span>Nivel</span>
+            <span>XP</span>
+          </div>
+          <div id="leaderboardList"></div>
+        </div>
+
+      </div>
+
+    </section>
+
+  </main>
+
+</div>
+
+<!-- PROFILE PANEL -->
+<div class="profile-panel-overlay" id="profilePanelOverlay" onclick="closeProfilePanel()"></div>
+<aside class="profile-panel" id="profilePanel">
+
+  <div class="profile-panel__hdr">
+    <h2 class="profile-panel__title">Mi Perfil</h2>
+    <button type="button" class="profile-panel__close" onclick="closeProfilePanel()">
+      <svg width="16" height="16" viewBox="0 0 16 16" fill="none">
+        <path d="M3 3l10 10M13 3L3 13" stroke="currentColor" stroke-width="1.5" stroke-linecap="round"/>
+      </svg>
+    </button>
+  </div>
+
+  <!-- AVATAR + NOMBRE -->
+  <div class="pp-hero">
+    <div class="pp-avatar" id="ppAvatar">?</div>
+    <div class="pp-hero__info">
+      <div class="pp-username" id="ppUsername">—</div>
+      <div class="pp-email mono" id="ppEmail">—</div>
+    </div>
+  </div>
+
+  <!-- NIVEL + XP -->
+  <div class="pp-level-card">
+    <div class="pp-level-card__top">
+      <div>
+        <div class="pp-level-card__label mono">NIVEL ACTUAL</div>
+        <div class="pp-level-card__num" id="ppLevel">1</div>
+      </div>
+      <div style="text-align:right">
+        <div class="pp-level-card__label mono">XP TOTAL</div>
+        <div class="pp-level-card__xp mono" id="ppXpTotal">0</div>
+      </div>
+    </div>
+    <div class="pp-xp-bar">
+      <div class="pp-xp-bar__fill" id="ppXpFill"></div>
+    </div>
+    <div class="pp-xp-bar__labels">
+      <span class="mono" id="ppXpCurrent">0 XP en este nivel</span>
+      <span class="mono" id="ppXpNext">faltan 100 XP</span>
+    </div>
+  </div>
+
+  <!-- STATS GRID -->
+  <div class="pp-stats">
+    <div class="pp-stat">
+      <div class="pp-stat__icon">⏱</div>
+      <div class="pp-stat__val mono" id="ppHours">0h 0m</div>
+      <div class="pp-stat__label">Tiempo jugado</div>
+    </div>
+    <div class="pp-stat">
+      <div class="pp-stat__icon">🏆</div>
+      <div class="pp-stat__val mono" id="ppMissions">0</div>
+      <div class="pp-stat__label">Misiones completadas</div>
+    </div>
+    <div class="pp-stat">
+      <div class="pp-stat__icon">📅</div>
+      <div class="pp-stat__val mono" id="ppDays">—</div>
+      <div class="pp-stat__label">Miembro desde</div>
+    </div>
+    <div class="pp-stat">
+      <div class="pp-stat__icon">⚡</div>
+      <div class="pp-stat__val mono" id="ppXpToNext">100</div>
+      <div class="pp-stat__label">XP para subir nivel</div>
+    </div>
+  </div>
+
+  <!-- HISTORIAL DE MISIONES -->
+  <div class="pp-section-title mono">MISIONES COMPLETADAS</div>
+  <div class="pp-missions" id="ppMissionsList">
+    <p class="mono" style="color:var(--text-dim);font-size:12px;text-align:center;padding:16px 0">Aún no has completado ninguna misión</p>
+  </div>
+
+</aside>
+
+<!-- TOAST NOTIFICATION -->
+<div class="toast" id="toast">
+  <span id="toastMsg"></span>
+</div>
+
+<!-- MISSION MODAL -->
+<div class="modal-overlay" id="missionModal">
+  <div class="modal">
+    <button type="button" class="modal__close" onclick="closeModal('missionModal')">✕</button>
+    <div id="missionModalContent"></div>
+  </div>
+</div>
+
+<script type="module" src="app.js"></script>
+</body>
+</html>
